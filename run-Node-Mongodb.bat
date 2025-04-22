@@ -1,4 +1,4 @@
-echo ===== Setting up Node.js Backend =====
+echo ===== Setting up Node.js Backend Mongodb =====
 @echo off
 :: Define the backend folder
 set BACKEND_DIR=%~dp0backend
@@ -77,7 +77,7 @@ echo   } >> "%BACKEND_DIR%\package.json"
 echo } >> "%BACKEND_DIR%\package.json"
 
 ::---------------------------------------------------------
-:: Create index.js
+:: Creating index.js
 
 echo Creating index.js...
 echo const apiRoutes = require('./Routes/apiRoutes'); >> "%INDEX_FILE%"
@@ -120,7 +120,7 @@ echo const { MongoClient, ObjectId } = require('mongodb'); >>  "%SERVICE_FILE%"
 echo const uri ='%DB_URI%'; >> "%SERVICE_FILE%"
 echo const dbName ='%DB_NAME%'; >> "%SERVICE_FILE%"
 
-echo //Fonction asynchrone qui connecte à MongoDB, récupère des données, et les retourne.  >> "%APIFILE%"
+echo // Asynchronous function that connects to MongoDB, retrieves data, and returns it.  >> "%APIFILE%"
 echo async function fetchData() { >> "%SERVICE_FILE%"
 echo     const client = new MongoClient(uri); >> "%SERVICE_FILE%"
 echo     try { >> "%SERVICE_FILE%"
@@ -129,7 +129,7 @@ echo         console.log('Connected to MongoDB'); >> "%SERVICE_FILE%"
 echo         const db = client.db(dbName); >> "%SERVICE_FILE%"
 echo         const collections = await db.listCollections().toArray(); >> "%SERVICE_FILE%"
 
-echo // parcourir >> "%SERVICE_FILE%"
+echo // loop through >> "%SERVICE_FILE%"
 echo         let data = {}; >> "%SERVICE_FILE%"
 echo         for (const collectionInfo of collections) { >> "%SERVICE_FILE%"
 echo             const collectionName = collectionInfo.name; >> "%SERVICE_FILE%"
@@ -145,19 +145,19 @@ echo         await client.close(); >> "%SERVICE_FILE%"
 echo     } >> "%SERVICE_FILE%"
 echo } >> "%SERVICE_FILE%"
 
-echo // Fonction pour récupérer uniquement les noms des tables >> "%SERVICE_FILE%" 
+echo // Function to retrieve only the table names >> "%SERVICE_FILE%" 
 echo async function getTableNames() {  >> "%SERVICE_FILE%"
 echo     const client = new MongoClient(uri);  >> "%SERVICE_FILE%"
 echo     try {  >> "%SERVICE_FILE%"
 echo         await client.connect();  >> "%SERVICE_FILE%"
 echo         const db = client.db(dbName);  >> "%SERVICE_FILE%"
-echo         // Récupère une liste de toutes les collections dans la base de données  >> "%SERVICE_FILE%"
+echo         // Retrieves a list of all collections in the database  >> "%SERVICE_FILE%"
 echo         const collections = await db.listCollections().toArray(); >> "%SERVICE_FILE%"
         
-echo         // Extrait uniquement les noms des collections  >> "%SERVICE_FILE%"
+echo         // Extracts only the names of the collections  >> "%SERVICE_FILE%"
 echo         const tableNames = collections.map(collection =^> collection.name);  >> "%SERVICE_FILE%"
         
-echo         // Retourne un tableau avec les noms des tables >> "%SERVICE_FILE%"
+echo         // Returns an array with the table names >> "%SERVICE_FILE%"
 echo         return tableNames; >> "%SERVICE_FILE%"
 echo     } finally {  >> "%SERVICE_FILE%"
 echo         await client.close();  >> "%SERVICE_FILE%"
@@ -193,7 +193,7 @@ echo }; >> "%SERVICE_FILE%"
 
 ::creating apiRoutes.js
 echo const { deleteCollection } = require('../services/mongodbService');>> "%ROUTE_FILE%"
-echo const { deleteCollection } = require('../services/mongodbService');
+
 echo const express = require('express'); >> "%ROUTE_FILE%"
 echo const router = express.Router();>>  "%ROUTE_FILE%"
 echo const { MongoClient, ObjectId } = require('mongodb'); >>  "%ROUTE_FILE%"
@@ -203,11 +203,11 @@ echo const {>> "%ROUTE_FILE%"
 echo    fetchData,>> "%ROUTE_FILE%"
 echo    getTableNames,>> "%ROUTE_FILE%"
 echo } = require('../services/mongodbService');>> "%ROUTE_FILE%"
-echo // API pour récupérer les noms des tables >> "%ROUTE_FILE%"
+echo // API to retrieve the table names >> "%ROUTE_FILE%"
 echo router.get^('/tableNames', async ^(req, res^) =^> { >> "%ROUTE_FILE%"
 echo     try {  >> "%ROUTE_FILE%"
 echo         const tableNames = await getTableNames();  >> "%ROUTE_FILE%"
-echo         res.json^(tableNames^);  // Renvoie les noms des tables sous forme de tableau  >> "%ROUTE_FILE%"
+echo         res.json^(tableNames^);  // Returns the table names as an array  >> "%ROUTE_FILE%"
 echo     } catch ^(err^) {  >> "%ROUTE_FILE%"
 echo         console.error('Error in /api/tableNames:', err);  >> "%ROUTE_FILE%"
 echo         res.status^(500^).json^({ error: 'Internal Server Error' }^);  >> "%ROUTE_FILE%"
@@ -215,7 +215,7 @@ echo     }  >> "%ROUTE_FILE%"
 echo }); >> "%ROUTE_FILE%"
 
 
-echo // Route pour récupérer toutes les données >> "%ROUTE_FILE%"
+echo // Route to retrieve all data >> "%ROUTE_FILE%"
 echo router.get^('/getall', async ^(req, res^) =^> {  >> "%ROUTE_FILE%"
 echo     try { >> "%ROUTE_FILE%"
 echo         const data = await fetchData^(^);   >> "%ROUTE_FILE%"
@@ -226,7 +226,7 @@ echo         res.status^(500^).json^({ error: 'Internal Server Error' }^); >> "%
 echo     } >> "%ROUTE_FILE%"
 echo }); >> "%ROUTE_FILE%"
 
-echo // Route pour mettre à jour un document dans une collection >> "%ROUTE_FILE%"
+echo // Route to update a document in a collection >> "%ROUTE_FILE%"
 echo router.put^('/update/:table/:id', async ^(req, res^) =^> { >> "%ROUTE_FILE%"
 echo     const client = new MongoClient^(uri^); >> "%ROUTE_FILE%"
 echo     try { >> "%ROUTE_FILE%"
@@ -303,7 +303,7 @@ echo         await client.close^(^); >>"%ROUTE_FILE%"
 echo  } >> "%ROUTE_FILE%"
 echo }); >> "%ROUTE_FILE%"
 
-echo // Route pour supprimer un document >> "%ROUTE_FILE%"
+echo // Route to delete a document >> "%ROUTE_FILE%"
 echo router.delete^('/delete/:table/:id', async ^(req, res^) =^> { >>"%ROUTE_FILE%"
 echo     const client = new MongoClient^(uri^); >>"%ROUTE_FILE%"
 echo     try { >> "%ROUTE_FILE%"
@@ -314,7 +314,7 @@ echo         console.log^(`Received delete request for table: ${table}, ID: ${id
 
 echo         let objectId; >> "%ROUTE_FILE%"
 echo         try { >> "%ROUTE_FILE%"
-echo             objectId = new ObjectId^(id^);  // Assurez-vous que l'ID est valide >> "%ROUTE_FILE%"
+echo             objectId = new ObjectId^(id^);  // Ensure the ID is valid >> "%ROUTE_FILE%"
 echo         } catch ^(error^) { >> "%ROUTE_FILE%"
 echo             return res.status^(400^).json^({ error: 'Invalid ID format' }^); >> "%ROUTE_FILE%"
 echo         } >> "%ROUTE_FILE%"
